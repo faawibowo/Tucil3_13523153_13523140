@@ -12,22 +12,30 @@ public class Parser {
     }
 
     public static State loadState(String filename) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(filename));
+        String path = "test\\" +filename;
+        BufferedReader reader = new BufferedReader(new FileReader(path));
+        
 
         String[] dims = reader.readLine().trim().split("\\s+");
-        if (dims.length != 2)
+        if (dims.length != 2){
+            reader.close();
             throw new IllegalArgumentException("Baris pertama harus dua angka: height width");
+        }
+            
         int height = Integer.parseInt(dims[0]);
         int width = Integer.parseInt(dims[1]);
 
         String pcLine = reader.readLine();
-        if (pcLine == null)
+        if (pcLine == null){
+            reader.close();
             throw new IllegalArgumentException("File kurang baris untuk piece count");
+        }   
         
         int countPieces = Integer.parseInt(pcLine.trim());
-        if (countPieces < 1)
+        if (countPieces < 1){
+            reader.close();
             throw new IllegalArgumentException("Jumlah pieces harus >= 1");
-        System.out.println("height: " + height + ", width: " + width + ", countPieces: " + countPieces);
+        }
 
         char[][] rawBoard = new char[height][width];
         int exitRow = -1, exitCol = -1;
@@ -118,7 +126,6 @@ public class Parser {
             countCar++;
             state.cars.put(id, car);
         }
-        System.out.println("countCar: " + countCar);
         if (countCar-1 != countPieces)
             throw new IllegalArgumentException("Jumlah pieces tidak sesuai dengan yang diharapkan");
 

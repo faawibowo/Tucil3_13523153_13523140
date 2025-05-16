@@ -2,20 +2,24 @@ import java.io.IOException;
 
 import GameObject.*;
 import FileReader.*;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         // Initialize the board with length, width, exit row, and exit column
-        State.initBoard(7, 10, 6,4);
-        
+        Scanner scan = new Scanner(System.in);
+        System.out.print("Enter the file name to load the state: ");
+        String filePath = scan.nextLine();
         try {
-            State testState = Parser.loadState("D:\\SEMESTER 4 BOI\\Strategi Algoritma\\Tucil3\\src\\1.txt");
-            testState.printBoard();
+            State loadedState = Parser.loadState(filePath);
+            loadedState.printBoard();
         } catch (IOException e) {
             System.out.println("Failed to read file: " + e.getMessage());
         } catch (IllegalArgumentException e) {
             System.out.println("Invalid file format: " + e.getMessage());
         }
+
+        scan.close();
 
 
 
