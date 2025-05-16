@@ -1,5 +1,6 @@
 package GameObject;
 import java.util.*;
+import util.ColorUtil;
 
 public class State {
     public Map<Character,Car> cars;
@@ -116,10 +117,17 @@ public class State {
         }
         for (int i = 0; i < newBoard.length; i++) {
             for (int j = 0; j < newBoard[0].length; j++) {
-                System.out.print(newBoard[i][j] + " ");
+                if (newBoard[i][j]==carId){
+                    System.out.print(ColorUtil.colorize(newBoard[i][j], ColorUtil.YELLOW) + " ");
+                }
+                else{
+                    System.out.print(newBoard[i][j] + " ");
+                }
+                
             }
             System.out.println();
         }
+        System.out.println("--------------------------");
         
 
     }
@@ -128,7 +136,7 @@ public class State {
         Car car = cars.get(carId);
         if (car != null) {
             Car newCar = car.moveLeft(steps);
-            State newState = new State(this, carId, 0, this.cost + steps);
+            State newState = new State(this, carId, 0, this.cost+1);
             newState.cars.put(carId, newCar);
             for (Car car2 : cars.values()) {
                 if (car2.id != carId) {
@@ -144,7 +152,7 @@ public class State {
         Car car = cars.get(carId);
         if (car != null) {
             Car newCar = car.moveRight(steps);
-            State newState = new State(this, carId, 1, this.cost + steps);
+            State newState = new State(this, carId, 1, this.cost+1);
             newState.cars.put(carId, newCar);
             for (Car car2 : cars.values()) {
                 if (car2.id != carId) {
@@ -160,7 +168,7 @@ public class State {
         Car car = cars.get(carId);
         if (car != null) {
             Car newCar = car.moveUp(steps);
-            State newState = new State(this, carId, 2, this.cost + steps);
+            State newState = new State(this, carId, 2, this.cost + 1);
             newState.cars.put(carId, newCar);
             for (Car car2 : cars.values()) {
                 if (car2.id != carId) {
@@ -176,7 +184,7 @@ public class State {
         Car car = cars.get(carId);
         if (car != null) {
             Car newCar = car.moveDown(steps);
-            State newState = new State(this, carId, 3, this.cost + steps);
+            State newState = new State(this, carId, 3, this.cost + 1);
             newState.cars.put(carId, newCar);
             for (Car car2 : cars.values()) {
                 if (car2.id != carId) {
@@ -186,6 +194,22 @@ public class State {
             return newState;
         }
         return null;
+    }
+
+    public void displayState() {
+        if (parent != null) {
+            parent.displayState();
+            if (direction == 0) {
+                System.out.println("Move car " + carId + " to the left");
+            } else if (direction == 1) {
+                System.out.println("Move car " + carId + " to the right");
+            } else if (direction == 2) {
+                System.out.println("Move car " + carId + " up");
+            } else if (direction == 3) {
+                System.out.println("Move car " + carId + " down");
+            }
+            this.printBoard();
+        }
     }
 
 

@@ -2,6 +2,7 @@ import java.io.IOException;
 
 import GameObject.*;
 import FileReader.*;
+import Algorithm.*;
 import java.util.Scanner;
 
 public class Main {
@@ -10,8 +11,9 @@ public class Main {
         Scanner scan = new Scanner(System.in);
         System.out.print("Enter the file name to load the state: ");
         String filePath = scan.nextLine();
+        State loadedState = null;
         try {
-            State loadedState = Parser.loadState(filePath);
+            loadedState = Parser.loadState(filePath);
             loadedState.printBoard();
         } catch (IOException e) {
             System.out.println("Failed to read file: " + e.getMessage());
@@ -20,6 +22,11 @@ public class Main {
         }
 
         scan.close();
+
+        UCS solution = new UCS();
+        boolean solved = solution.solve(loadedState);
+        System.out.println("solution found: " + solved);
+        System.out.println("nodes explored: " + solution.nodesExplored);
 
 
 
