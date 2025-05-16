@@ -29,7 +29,7 @@ public class Car {
     //integer means the number of steps that can be moved
     public int canMoveRight(char[][] board) {
         int steps = 0;
-        for (int i = col+length-1; i < board.length ; i++){
+        for (int i = col+length-1; i < board[0].length ; i++){
             if (board[row][i] == '.'){
                 steps++;
             }
@@ -77,7 +77,8 @@ public class Car {
 
     public int canMoveDown(char[][] board) {
         int steps = 0;
-        for (int i = row+length-1; i < board[0].length; i++) {
+        
+        for (int i = row+length-1; i < board.length; i++) {
             if (board[i][col] == '.') {
                 steps++;
             }
