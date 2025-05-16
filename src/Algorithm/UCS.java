@@ -21,7 +21,7 @@ public class UCS {
             State currentState = queue.poll();
             Car mainCar = currentState.cars.get('P');
             if (mainCar.isHorizontal){
-                if(mainCar.col<=currentState.exitCol && currentState.exitCol <=mainCar.col+mainCar.length-1){
+                if(mainCar.col<=State.exitCol && State.exitCol <=mainCar.col+mainCar.length-1){
                     found = true;
                     System.out.println("found exit");
                     currentState.displayState();
@@ -29,9 +29,9 @@ public class UCS {
                 }
             }
             else{
-                if(mainCar.row<=currentState.exitRow && currentState.exitRow <=mainCar.row+mainCar.length-1){
+                if(mainCar.row<=State.exitRow && State.exitRow <=mainCar.row+mainCar.length-1){
                     found = true;
-                    System.out.println("exit row: " + currentState.exitRow);
+                    System.out.println("exit row: " + State.exitRow);
                     System.out.println("main car row: " + mainCar.row);
                     System.out.println("main car row + width - 1: " + (mainCar.row+State.width-1));
                     System.out.println("found exit");
