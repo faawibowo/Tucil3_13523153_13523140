@@ -7,6 +7,7 @@ public class UCS {
     public Queue<State> queue;
     public Set<State> visited;
     public int nodesExplored;
+    public long time;
 
     public UCS(){
         queue = new LinkedList<>();
@@ -15,6 +16,7 @@ public class UCS {
     }
 
     public boolean solve(State initialState) {
+        long startTime = System.nanoTime(); 
         boolean found = false;
         queue.add(initialState);
         while (!queue.isEmpty() && !found) {
@@ -75,7 +77,12 @@ public class UCS {
                 }
             }           
         }
+        time = System.nanoTime() - startTime;
         return found;
+    }
+
+    public double getRuntime() {
+        return time / 1_000_000.0; // Convert nanoseconds to milliseconds
     }
 
 }

@@ -27,6 +27,7 @@ public class Main {
         boolean solved = solution.solve(loadedState);
         System.out.println("solution found: " + solved);
         System.out.println("nodes explored: " + solution.nodesExplored);
+        System.out.printf("Runtime: %.3f ms%n", solution.getRuntime());
         
 
 
