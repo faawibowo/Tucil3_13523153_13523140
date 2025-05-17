@@ -39,6 +39,9 @@ public class State {
             }
         }
         for (Car car : cars.values()) {
+            if(car.col < 0 || car.col >= width || car.row < 0 || car.row >= height) {
+                continue; // Skip cars that are out of bounds
+            }
             if (car.isHorizontal) {
                 for (int i = 0; i < car.length; i++) {
                     board[car.row][car.col + i] = car.id;

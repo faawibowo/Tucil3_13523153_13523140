@@ -29,6 +29,9 @@ public class UCS {
                     found = true;
                     System.out.println("found exit");
                     finalState = currentState;
+                    Car carP = currentState.cars.get('P');
+                    carP.col = -1;
+                    carP.row = -1;
                     currentState.displayState();
                     break;
                 }
@@ -38,6 +41,9 @@ public class UCS {
                     found = true;
                     System.out.println("found exit");
                     finalState = currentState;
+                    Car carP = currentState.cars.get('P');
+                    carP.col = -1;
+                    carP.row = -1;
                     currentState.displayState();
                     break;
                 }

@@ -1,7 +1,8 @@
 4 5
-4
-..AAP
-..BBP
-..EEE
-...GG
+6
     K
+FAAAA
+F.BBP
+F.EEP
+SS.GG
+    
