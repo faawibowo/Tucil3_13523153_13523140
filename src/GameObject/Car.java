@@ -1,5 +1,7 @@
 package GameObject;
 
+import java.util.Objects;
+
 public class Car {
     public int row, col;
     public boolean isHorizontal;
@@ -61,7 +63,7 @@ public class Car {
 
     public int canMoveUp(char[][] board) {
         int steps = 0;
-        for (int i = row; i > 0; i--) {
+        for (int i = row; i >= 0; i--) {
             if (board[i][col] == '.') {
                 steps++;
             }
@@ -106,5 +108,18 @@ public class Car {
 
     public Car moveDown(int steps) {
         return new Car(row + steps, col, isHorizontal, length, id, isMainCar);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Car)) return false;
+        Car other = (Car) obj;
+        return row == other.row && col == other.col && isHorizontal == other.isHorizontal && length == other.length && id == other.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(row, col, isHorizontal, length, id);
     }
 }

@@ -91,7 +91,6 @@ public class State {
             if (exitRow == 0) {
                 for (int i = 0; i < height+1; i++) {
                     for (int j = 0; j < width; j++) {
-                        System.out.println("i: " + i + " j: " + j);
                         if (i == exitRow && j == exitCol) {
                             newBoard[i][j] = 'K';
                         } else if (i == 0) {
@@ -210,6 +209,26 @@ public class State {
             }
             this.printBoard();
         }
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        State other = (State) obj;
+        for (Map.Entry<Character, Car> entry : cars.entrySet()) {
+            char carId = entry.getKey();
+            Car car1 = entry.getValue();
+            Car car2 = other.cars.get(carId);
+            if (car2 == null || !car1.equals(car2)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(cars);
     }
 
 

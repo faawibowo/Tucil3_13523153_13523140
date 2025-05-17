@@ -16,7 +16,8 @@ public class UCS {
     }
 
     public boolean solve(State initialState) {
-        long startTime = System.nanoTime(); 
+        long startTime = System.nanoTime();
+        System.out.println("generating solution....");
         boolean found = false;
         queue.add(initialState);
         while (!queue.isEmpty() && !found) {
@@ -33,9 +34,6 @@ public class UCS {
             else{
                 if(mainCar.row<=State.exitRow && State.exitRow <=mainCar.row+mainCar.length-1){
                     found = true;
-                    System.out.println("exit row: " + State.exitRow);
-                    System.out.println("main car row: " + mainCar.row);
-                    System.out.println("main car row + width - 1: " + (mainCar.row+State.width-1));
                     System.out.println("found exit");
                     currentState.displayState();
                     break;
@@ -48,14 +46,20 @@ public class UCS {
                     int moveRight = car.canMoveRight(board);
                     if(moveLeft>0){
                         for (int i=0;i<moveLeft;i++){
-                            nodesExplored++;
-                            queue.add(currentState.moveLeft(car.id, i+1));
+                            State moveState = currentState.moveLeft(car.id, i+1);
+                            if (visited.add(moveState)) {
+                                nodesExplored++;
+                                queue.add(moveState);
+                            }
                         }
                     }
                     if(moveRight>0){
                         for (int i = 0; i < moveRight; i++) {
-                            nodesExplored++;
-                            queue.add(currentState.moveRight(car.id, i+1));
+                            State moveState = currentState.moveRight(car.id, i+1);
+                            if (visited.add(moveState)) {
+                                nodesExplored++;
+                                queue.add(moveState);
+                            }
                         }
                     }
                 }
@@ -64,14 +68,20 @@ public class UCS {
                     int moveDown = car.canMoveDown(board);
                     if (moveUp>0){
                         for (int i = 0; i < moveUp; i++) {
-                            nodesExplored++;
-                            queue.add(currentState.moveUp(car.id, i+1));
+                            State moveState = currentState.moveUp(car.id, i+1);
+                            if (visited.add(moveState)) {
+                                nodesExplored++;
+                                queue.add(moveState);
+                            }
                         }
                     }
                     if (moveDown>0){
                         for (int i = 0; i < moveDown; i++) {
-                            nodesExplored++;
-                            queue.add(currentState.moveDown(car.id, i+1));
+                            State moveState = currentState.moveDown(car.id, i+1);
+                            if (visited.add(moveState)) {
+                                nodesExplored++;
+                                queue.add(moveState);
+                            }
                         }
                     }
                 }
