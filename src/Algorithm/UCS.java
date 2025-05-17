@@ -6,6 +6,7 @@ import java.util.*;
 public class UCS {
     public Queue<State> queue;
     public Set<State> visited;
+    public State finalState;
     public int nodesExplored;
     public long time;
 
@@ -27,6 +28,7 @@ public class UCS {
                 if(mainCar.col<=State.exitCol && State.exitCol <=mainCar.col+mainCar.length-1){
                     found = true;
                     System.out.println("found exit");
+                    finalState = currentState;
                     currentState.displayState();
                     break;
                 }
@@ -35,6 +37,7 @@ public class UCS {
                 if(mainCar.row<=State.exitRow && State.exitRow <=mainCar.row+mainCar.length-1){
                     found = true;
                     System.out.println("found exit");
+                    finalState = currentState;
                     currentState.displayState();
                     break;
                 }
