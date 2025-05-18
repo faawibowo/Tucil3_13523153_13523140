@@ -107,7 +107,7 @@ public class GBFS {
                                     movedState.cost = getExitDist(mainCar, State.exitRow, State.exitCol);
                                 }
                                 else if (useObsCountH) {
-                                    getBlockersAmount(mainCar, State.exitRow, State.exitCol, board);
+                                    movedState.cost = getBlockersAmount(mainCar, State.exitRow, State.exitCol, board);
                                 }
                                 prioQueue.add(movedState);
                             }
@@ -125,7 +125,7 @@ public class GBFS {
                                     movedState.cost = getExitDist(mainCar, State.exitRow, State.exitCol);
                                 }
                                 else if (useObsCountH) {
-                                    getBlockersAmount(mainCar, State.exitRow, State.exitCol, board);
+                                    movedState.cost = getBlockersAmount(mainCar, State.exitRow, State.exitCol, board);
                                 }
                                 prioQueue.add(movedState);
                             }
@@ -148,7 +148,7 @@ public class GBFS {
                                     movedState.cost = getExitDist(mainCar, State.exitRow, State.exitCol);
                                 }
                                 else if (useObsCountH) {
-                                    getBlockersAmount(mainCar, State.exitRow, State.exitCol, board);
+                                    movedState.cost = getBlockersAmount(mainCar, State.exitRow, State.exitCol, board);
                                 }
                                 prioQueue.add(movedState);
                             }
@@ -168,7 +168,7 @@ public class GBFS {
                                     movedState.cost = getExitDist(mainCar, State.exitRow, State.exitCol);
                                 }
                                 else if (useObsCountH) {
-                                    getBlockersAmount(mainCar, State.exitRow, State.exitCol, board);
+                                    movedState.cost = getBlockersAmount(mainCar, State.exitRow, State.exitCol, board);
                                 }
                                 prioQueue.add(movedState);
                                 }
