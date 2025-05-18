@@ -9,6 +9,7 @@ public class State {
     public int direction; // 0=left, 1=right, 2=up, 3=down.
     public int cost;
     public int heuristic;
+    public int AScore;
 
     //board size
     public static int height;
@@ -32,7 +33,17 @@ public class State {
         this.cost = cost;
         this.heuristic = heuristic;
     }
-    
+
+    public State(State parent, char carId, int direction, int cost, int heuristic, int AScore) {
+        cars = new HashMap<Character, Car>();
+        this.parent = parent;
+        this.carId = carId;
+        this.direction = direction;
+        this.cost = cost;
+        this.heuristic = heuristic;
+        this.AScore = AScore;
+    }
+
     public static void initBoard(int h, int w, int r, int c) {
         height = h;
         width = w;

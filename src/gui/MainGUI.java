@@ -1,6 +1,7 @@
 package gui;
 
 import FileReader.Parser;
+import Algorithm.AStar;
 import Algorithm.GBFS;
 import Algorithm.UCS;
 
@@ -68,7 +69,7 @@ public class MainGUI extends JFrame {
         solveButton.setEnabled(false);
         resetButton.setEnabled(false);
 
-        String[] algs = { "UCS", "GBFS" };
+        String[] algs = { "UCS", "GBFS", "A* Search" };
         algCombo = new JComboBox<>(algs);
         algCombo.setSelectedIndex(0);
 
@@ -76,8 +77,9 @@ public class MainGUI extends JFrame {
         heuristicCombo = new JComboBox<>(heuristics);
         heuristicCombo.setEnabled(false);
         algCombo.addActionListener(e -> {
-            boolean useGBFS = "GBFS".equals(algCombo.getSelectedItem());
-            heuristicCombo.setEnabled(useGBFS);
+            String algo = (String) algCombo.getSelectedItem();
+            boolean needsHeuristic = algo.equals("GBFS") || algo.equals("A* Search");
+            heuristicCombo.setEnabled(needsHeuristic);
         });
 
         statusLabel = new JLabel("Load a puzzle file to begin");
@@ -218,9 +220,17 @@ public class MainGUI extends JFrame {
                     nodesExplored = solver.nodesExplored;
                     runtime = solver.getRuntime();
                     solution = buildPath(solver.finalState);
-                } else {
+                } else if ("GBFS".equals(algo)) {
                     int choice = heuristicCombo.getSelectedIndex();
                     GBFS solver = new GBFS(choice);
+                    found = solver.solve(initialState);
+                    nodesExplored = solver.nodesExplored;
+                    runtime = solver.getRuntime();
+                    solution = buildPath(solver.finalState);
+                }
+                else if ("A* Search".equals(algo)) {
+                    int choice = heuristicCombo.getSelectedIndex();
+                    AStar solver = new AStar(choice);
                     found = solver.solve(initialState);
                     nodesExplored = solver.nodesExplored;
                     runtime = solver.getRuntime();
