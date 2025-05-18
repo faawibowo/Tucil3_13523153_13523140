@@ -27,6 +27,7 @@ public class UCS {
             if (mainCar.isHorizontal){
                 if(mainCar.col<=State.exitCol && State.exitCol <=mainCar.col+mainCar.length-1){
                     found = true;
+                    time = System.nanoTime() - startTime;
                     System.out.println("found exit");
                     finalState = currentState;
                     Car carP = currentState.cars.get('P');
@@ -39,6 +40,7 @@ public class UCS {
             else{
                 if(mainCar.row<=State.exitRow && State.exitRow <=mainCar.row+mainCar.length-1){
                     found = true;
+                    time = System.nanoTime() - startTime;
                     System.out.println("found exit");
                     finalState = currentState;
                     Car carP = currentState.cars.get('P');
@@ -94,9 +96,11 @@ public class UCS {
                         }
                     }
                 }
-            }           
+            }       
         }
-        time = System.nanoTime() - startTime;
+        if(!found){
+            time = System.nanoTime() - startTime;
+        }
         return found;
     }
 
