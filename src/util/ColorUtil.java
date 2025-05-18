@@ -1,4 +1,3 @@
-// File: ColorUtil.java
 package util;
 public class ColorUtil {
     public static final String RESET = "\u001B[0m";
