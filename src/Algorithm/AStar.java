@@ -3,34 +3,10 @@ import GameObject.*;
 import java.util.*;
 
 /*
- * Greedy Best First Search Algorithm
- * heuristic: The closer the primary car is to the exit door (measured in cell between primary car and the exit)
- */
+ * Basically the same as AStar but with the addition for a normal cost 
+*/
 
- /*
-  * Special cases:
-  1. Car right next to exit
-  2.
-  */
-
-  /*
-   * General Idea: 
-   * 1. Init: 
-   *    - recieve a current state of a board
-   *    - initiate cost:
-   *        1) Get distance between primary car and exit (getExitDistance())
-   *        2) Cost = getExitDistance() + getBlockers
-   * 2. Final state: If getExitDistance() = 0
-   * 3. Loop
-   *    You have a state. Each state has a map of cars. For each car that`
-   * 
-   * Other notes:
-   * Use set to know visited state
-   * prio queue for gbfs (Use BFS technique for the algorithm)
-   * Car is horizontal or vertical
-   */
-
-public class GBFS {
+public class AStar {
     private PriorityQueue<State> prioQueue;
     public Set<State> visited;
     public State finalState;
@@ -40,14 +16,14 @@ public class GBFS {
     boolean useObsCountH;
 
 
-    public GBFS(int heuristicValue) {
-        prioQueue = new PriorityQueue<State>(Comparator.comparingInt((State s) -> s.heuristic)); // Always process the state with the least cost first
+    public AStar(int AScoreValue) {
+        prioQueue = new PriorityQueue<State>(Comparator.comparingInt((State s) -> s.AScore)); // Always process the state with the least cost first
         visited = new HashSet<>();
         nodesExplored = 0;
-        if (heuristicValue == 0) {
+        if (AScoreValue == 0) {
             useExitDistH = true;
         }
-        else if (heuristicValue == 1) {
+        else if (AScoreValue == 1) {
             useObsCountH = true;
         }
         else {
@@ -100,13 +76,13 @@ public class GBFS {
                             if (visited.add(movedState)) {
                                 nodesExplored++;
                                 if (useExitDistH && useObsCountH) {
-                                    movedState.heuristic = getExitDist(movedState.cars.get('P'), State.exitRow, State.exitCol) + getBlockersAmount(movedState.cars.get('P'), State.exitRow, State.exitCol, board);
+                                    movedState.AScore = getExitDist(movedState.cars.get('P'), State.exitRow, State.exitCol) + getBlockersAmount(movedState.cars.get('P'), State.exitRow, State.exitCol, board) + movedState.cost;
                                 }
                                 else if (useExitDistH) {
-                                    movedState.heuristic = getExitDist(movedState.cars.get('P'), State.exitRow, State.exitCol);
+                                    movedState.AScore = getExitDist(movedState.cars.get('P'), State.exitRow, State.exitCol) + movedState.cost;
                                 }
                                 else if (useObsCountH) {
-                                    movedState.heuristic = getBlockersAmount(movedState.cars.get('P'), State.exitRow, State.exitCol, board);
+                                    movedState.AScore = getBlockersAmount(movedState.cars.get('P'), State.exitRow, State.exitCol, board) + movedState.cost;
                                 }
                                 prioQueue.add(movedState);
                             }
@@ -118,13 +94,13 @@ public class GBFS {
                             if (visited.add(movedState)) {
                                 nodesExplored++;
                                 if (useExitDistH && useObsCountH) {
-                                    movedState.heuristic = getExitDist(movedState.cars.get('P'), State.exitRow, State.exitCol) + getBlockersAmount(movedState.cars.get('P'), State.exitRow, State.exitCol, board);
+                                    movedState.AScore = getExitDist(movedState.cars.get('P'), State.exitRow, State.exitCol) + getBlockersAmount(movedState.cars.get('P'), State.exitRow, State.exitCol, board) + movedState.cost;
                                 }
                                 else if (useExitDistH) {
-                                    movedState.heuristic = getExitDist(movedState.cars.get('P'), State.exitRow, State.exitCol);
+                                    movedState.AScore = getExitDist(movedState.cars.get('P'), State.exitRow, State.exitCol) + movedState.cost;
                                 }
                                 else if (useObsCountH) {
-                                    movedState.heuristic = getBlockersAmount(movedState.cars.get('P'), State.exitRow, State.exitCol, board);
+                                    movedState.AScore = getBlockersAmount(movedState.cars.get('P'), State.exitRow, State.exitCol, board) + movedState.cost;
                                 }
                                 prioQueue.add(movedState);
                             }
@@ -141,13 +117,13 @@ public class GBFS {
                             if (visited.add(movedState)) {
                                 nodesExplored++;
                                 if (useExitDistH && useObsCountH) {
-                                    movedState.heuristic = getExitDist(movedState.cars.get('P'), State.exitRow, State.exitCol) + getBlockersAmount(movedState.cars.get('P'), State.exitRow, State.exitCol, board);
+                                    movedState.AScore = getExitDist(movedState.cars.get('P'), State.exitRow, State.exitCol) + getBlockersAmount(movedState.cars.get('P'), State.exitRow, State.exitCol, board) + movedState.cost;
                                 }
                                 else if (useExitDistH) {
-                                    movedState.heuristic = getExitDist(movedState.cars.get('P'), State.exitRow, State.exitCol);
+                                    movedState.AScore = getExitDist(movedState.cars.get('P'), State.exitRow, State.exitCol) + movedState.cost;
                                 }
                                 else if (useObsCountH) {
-                                    movedState.heuristic = getBlockersAmount(movedState.cars.get('P'), State.exitRow, State.exitCol, board);
+                                    movedState.AScore = getBlockersAmount(movedState.cars.get('P'), State.exitRow, State.exitCol, board) + movedState.cost;
                                 }
                                 prioQueue.add(movedState);
                             }
@@ -161,13 +137,13 @@ public class GBFS {
                                 if (visited.add(movedState)) {
                                     nodesExplored++;
                                 if (useExitDistH && useObsCountH) {
-                                    movedState.heuristic = getExitDist(movedState.cars.get('P'), State.exitRow, State.exitCol) + getBlockersAmount(movedState.cars.get('P'), State.exitRow, State.exitCol, board);
+                                    movedState.AScore = getExitDist(movedState.cars.get('P'), State.exitRow, State.exitCol) + getBlockersAmount(movedState.cars.get('P'), State.exitRow, State.exitCol, board) + movedState.cost;
                                 }
                                 else if (useExitDistH) {
-                                    movedState.heuristic = getExitDist(movedState.cars.get('P'), State.exitRow, State.exitCol);
+                                    movedState.AScore = getExitDist(movedState.cars.get('P'), State.exitRow, State.exitCol) + movedState.cost;
                                 }
                                 else if (useObsCountH) {
-                                    movedState.heuristic = getBlockersAmount(movedState.cars.get('P'), State.exitRow, State.exitCol, board);
+                                    movedState.AScore = getBlockersAmount(movedState.cars.get('P'), State.exitRow, State.exitCol, board) + movedState.cost;
                                 }
                                 prioQueue.add(movedState);
                                 }
