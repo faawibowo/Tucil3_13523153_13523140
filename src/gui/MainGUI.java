@@ -1,10 +1,10 @@
 package gui;
 
 import FileReader.Parser;
+import Algorithm.GBFS;
 import Algorithm.UCS;
 
 import javax.swing.*;
-import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
@@ -31,16 +31,17 @@ public class MainGUI extends JFrame {
 
     private State initialState;
     private JButton loadButton, solveButton, resetButton, speedButton;
-    private JPanel boardPanel, controlPanel;
+    private JComboBox<String> algCombo;
+    private JComboBox<String> heuristicCombo;
+    private JPanel boardPanel;
+    private JLabel statusLabel;
     private JTextArea logArea;
     private JScrollPane logScrollPane;
-    private JLabel statusLabel;
 
     private List<GameObject.State> pathStates;
     private int currentStep;
-    private Timer animator;
+    private javax.swing.Timer animator;
     private int animationSpeed = ANIMATION_DELAY;
-
     private Map<Character, Color> pieceColors = new HashMap<>();
 
     public MainGUI() {
@@ -64,15 +65,26 @@ public class MainGUI extends JFrame {
         solveButton = createStyledButton("Solve", new Color(100, 200, 130));
         resetButton = createStyledButton("Reset", new Color(230, 150, 100));
         speedButton = createStyledButton("Speed: Normal", new Color(150, 150, 230));
-
         solveButton.setEnabled(false);
         resetButton.setEnabled(false);
+
+        String[] algs = { "UCS", "GBFS" };
+        algCombo = new JComboBox<>(algs);
+        algCombo.setSelectedIndex(0);
+
+        String[] heuristics = { "Exit distance only", "Blockers count only", "Both heuristics" };
+        heuristicCombo = new JComboBox<>(heuristics);
+        heuristicCombo.setEnabled(false);
+        algCombo.addActionListener(e -> {
+            boolean useGBFS = "GBFS".equals(algCombo.getSelectedItem());
+            heuristicCombo.setEnabled(useGBFS);
+        });
 
         statusLabel = new JLabel("Load a puzzle file to begin");
         statusLabel.setFont(new Font("Segoe UI", Font.ITALIC, 12));
         statusLabel.setForeground(new Color(100, 100, 100));
-        boardPanel = new JPanel();
-        boardPanel.setLayout(null); 
+
+        boardPanel = new JPanel(null);
         boardPanel.setBackground(BOARD_COLOR);
         boardPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
@@ -83,7 +95,6 @@ public class MainGUI extends JFrame {
         logArea.setFont(LOG_FONT);
         logArea.setBackground(new Color(250, 250, 250));
         logArea.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-
         logScrollPane = new JScrollPane(logArea);
         logScrollPane.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(200, 200, 200), 1),
@@ -91,22 +102,25 @@ public class MainGUI extends JFrame {
     }
 
     private JButton createStyledButton(String text, Color bgColor) {
-        JButton button = new JButton(text);
-        button.setFont(BUTTON_FONT);
-        button.setBackground(bgColor);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setOpaque(true);
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        button.setBorder(new EmptyBorder(8, 16, 8, 16));
-        return button;
+        JButton btn = new JButton(text);
+        btn.setFont(BUTTON_FONT);
+        btn.setBackground(bgColor);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setOpaque(true);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setBorder(new EmptyBorder(8, 16, 8, 16));
+        return btn;
     }
 
     private void layoutComponents() {
-        controlPanel = new JPanel();
-        controlPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 8));
         controlPanel.setBackground(BACKGROUND_COLOR);
+        controlPanel.add(new JLabel("Algorithm:"));
+        controlPanel.add(algCombo);
+        controlPanel.add(new JLabel("Heuristic:"));
+        controlPanel.add(heuristicCombo);
         controlPanel.add(loadButton);
         controlPanel.add(solveButton);
         controlPanel.add(resetButton);
@@ -144,7 +158,6 @@ public class MainGUI extends JFrame {
             animationSpeed = ANIMATION_DELAY;
             speedButton.setText("Speed: Normal");
         }
-
         if (animator != null && animator.isRunning()) {
             animator.setDelay(animationSpeed);
         }
@@ -154,7 +167,6 @@ public class MainGUI extends JFrame {
         if (animator != null && animator.isRunning()) {
             animator.stop();
         }
-
         if (pathStates != null && !pathStates.isEmpty()) {
             currentStep = 0;
             renderBoard(pathStates.get(0).buildBoard(), '\0');
@@ -169,26 +181,19 @@ public class MainGUI extends JFrame {
         chooser.setFileFilter(new FileNameExtensionFilter("Text Files", "txt"));
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             try {
+                String path = chooser.getSelectedFile().getAbsolutePath();
                 String name = chooser.getSelectedFile().getName();
-                initialState = Parser.loadState(name);
+                initialState = Parser.loadState(path);
                 assignPieceColors(initialState);
                 renderBoard(initialState.buildBoard(), '\0');
                 logArea.setText("Loaded " + name + "\n");
                 solveButton.setEnabled(true);
                 resetButton.setEnabled(false);
-                updateStatus("Puzzle loaded successfully. Click 'Solve' to find a solution.");
+                updateStatus("Puzzle loaded successfully. Click 'Solve'.");
             } catch (IOException | IllegalArgumentException ex) {
                 JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 updateStatus("Error loading puzzle");
             }
-        }
-    }
-
-    private void assignPieceColors(State state) {
-        pieceColors.clear();
-        RandomColorGenerator gen = new RandomColorGenerator();
-        for (Character id : state.cars.keySet()) {
-            pieceColors.put(id, gen.nextColor());
         }
     }
 
@@ -197,128 +202,125 @@ public class MainGUI extends JFrame {
         resetButton.setEnabled(true);
         updateStatus("Solving puzzle...");
 
-
-        SwingWorker<Void, String> worker = new SwingWorker<Void, String>() {
-            private java.util.List<GameObject.State> solution;
+        new SwingWorker<Void, String>() {
+            private List<GameObject.State> solution;
             private boolean found;
             private int nodesExplored;
             private double runtime;
 
             @Override
             protected Void doInBackground() {
-                publish("Solving with UCS algorithm...");
-                UCS ucs = new UCS();
-                found = ucs.solve(initialState);
-                nodesExplored = ucs.nodesExplored;
-                runtime = ucs.getRuntime();
-
-                if (found) {
-                    GameObject.State node = ucs.finalState;
-                    java.util.LinkedList<GameObject.State> list = new java.util.LinkedList<>();
-                    while (node != null) {
-                        list.addFirst(node);
-                        node = node.parent;
-                    }
-                    solution = list;
+                String algo = (String) algCombo.getSelectedItem();
+                publish("Solving with " + algo + "...");
+                if ("UCS".equals(algo)) {
+                    UCS solver = new UCS();
+                    found = solver.solve(initialState);
+                    nodesExplored = solver.nodesExplored;
+                    runtime = solver.getRuntime();
+                    solution = buildPath(solver.finalState);
+                } else {
+                    int choice = heuristicCombo.getSelectedIndex();
+                    GBFS solver = new GBFS(choice);
+                    found = solver.solve(initialState);
+                    nodesExplored = solver.nodesExplored;
+                    runtime = solver.getRuntime();
+                    solution = buildPath(solver.finalState);
                 }
                 return null;
             }
 
             @Override
             protected void process(List<String> chunks) {
-                for (String chunk : chunks) {
-                    logArea.append(chunk + "\n");
-                }
+                chunks.forEach(line -> logArea.append(line + "\n"));
             }
 
             @Override
             protected void done() {
-                logArea.append("Found solution: " + found + "\n");
-                logArea.append("Nodes explored: " + nodesExplored + "\n");
+                logArea.append("Found: " + found + " | Nodes: " + nodesExplored + "\n");
                 logArea.append(String.format("Runtime: %.3f ms\n\n", runtime));
-
                 if (found && solution != null) {
                     pathStates = solution;
-                    currentStep = 0;
-
-                    animator = new Timer(animationSpeed, new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            if (currentStep < pathStates.size()) {
-                                GameObject.State s = pathStates.get(currentStep);
-                                renderBoard(s.buildBoard(), s.carId);
-                                logArea.append(describeMove(s, currentStep) + "\n");
-                                updateStatus("Step " + currentStep + " of " + (pathStates.size() - 1));
-                                currentStep++;
-
-                                logArea.setCaretPosition(logArea.getDocument().getLength());
-                            } else {
-                                animator.stop();
-                                logArea.append("Solution complete! " + (pathStates.size() - 1) + " moves total.\n");
-                                updateStatus("Solution complete - " + (pathStates.size() - 1) + " moves");
-                                solveButton.setEnabled(true);
-                            }
-                        }
-                    });
-                    animator.setInitialDelay(500);
-                    animator.start();
+                    startAnimation();
                 } else {
                     logArea.append("No solution found.\n");
-                    updateStatus("No solution found");
+                    updateStatus("No solution");
                     solveButton.setEnabled(true);
                 }
             }
-        };
+        }.execute();
+    }
 
-        worker.execute();
+    private List<GameObject.State> buildPath(GameObject.State end) {
+        LinkedList<GameObject.State> list = new LinkedList<>();
+        GameObject.State cur = end;
+        while (cur != null) {
+            list.addFirst(cur);
+            cur = cur.parent;
+        }
+        return list;
+    }
+
+    private void startAnimation() {
+        currentStep = 0;
+        animator = new javax.swing.Timer(animationSpeed, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (currentStep < pathStates.size()) {
+                    State s = pathStates.get(currentStep);
+                    renderBoard(s.buildBoard(), s.carId);
+                    logArea.append(describeMove(s, currentStep) + "\n");
+                    updateStatus("Step " + currentStep + " of " + (pathStates.size() - 1));
+                    currentStep++;
+                    logArea.setCaretPosition(logArea.getDocument().getLength());
+                } else {
+                    animator.stop();
+                    logArea.append("Solution complete! " + (pathStates.size() - 1) + " moves total.\n");
+                    updateStatus("Complete");
+                    solveButton.setEnabled(true);
+                }
+            }
+        });
+        animator.setInitialDelay(500);
+        animator.start();
     }
 
     private String describeMove(State s, int step) {
         if (step == 0)
             return "Initial state";
-
         StringBuilder sb = new StringBuilder();
-        sb.append("Step ").append(step).append(": ");
-
+        sb.append("Step ").append(step).append(": Move car ").append(s.carId);
         switch (s.direction) {
             case 0:
-                sb.append("Move car ").append(s.carId).append(" ← left");
+                sb.append(" ← left");
                 break;
             case 1:
-                sb.append("Move car ").append(s.carId).append(" → right");
+                sb.append(" → right");
                 break;
             case 2:
-                sb.append("Move car ").append(s.carId).append(" ↑ up");
+                sb.append(" ↑ up");
                 break;
             case 3:
-                sb.append("Move car ").append(s.carId).append(" ↓ down");
+                sb.append(" ↓ down");
                 break;
         }
-
         return sb.toString();
     }
 
     private void renderBoard(char[][] board, char highlightId) {
         boardPanel.removeAll();
-
-        int h = board.length;
-        int w = board[0].length;
+        int h = board.length, w = board[0].length;
         Car mainCar = initialState.cars.get('P');
         boolean horiz = mainCar.isHorizontal;
-    
-        int exitRow = State.exitRow;
-        int exitCol = State.exitCol;
+        int exitRow = State.exitRow, exitCol = State.exitCol;
 
-    
         int newCols = horiz ? w + 1 : w;
         int newRows = horiz ? h : h + 1;
-
         int shiftRight = horiz && exitCol == 0 ? 1 : 0;
         int shiftDown = !horiz && exitRow == 0 ? 1 : 0;
 
-        int panelW = newCols * (CELL_SIZE + CELL_GAP) + CELL_GAP;
-        int panelH = newRows * (CELL_SIZE + CELL_GAP) + CELL_GAP;
-        boardPanel.setPreferredSize(new Dimension(panelW + 20, panelH + 20));
+        boardPanel.setPreferredSize(new Dimension(
+                newCols * (CELL_SIZE + CELL_GAP) + CELL_GAP + 20,
+                newRows * (CELL_SIZE + CELL_GAP) + CELL_GAP + 20));
 
         for (int i = 0; i < h; i++) {
             for (int j = 0; j < w; j++) {
@@ -329,7 +331,6 @@ public class MainGUI extends JFrame {
                 boardPanel.add(cell);
             }
         }
-
         int exitX, exitY;
         String arrow;
         if (horiz) {
@@ -341,7 +342,6 @@ public class MainGUI extends JFrame {
             exitY = (exitRow + (exitRow == 0 ? 0 : 1)) * (CELL_SIZE + CELL_GAP) + CELL_GAP;
             arrow = exitRow == 0 ? "↑" : "↓";
         }
-
         JPanel exitCell = new JPanel(new BorderLayout());
         exitCell.setBackground(EXIT_COLOR);
         exitCell.setBorder(BorderFactory.createLineBorder(EXIT_BORDER_COLOR, 3));
@@ -350,25 +350,21 @@ public class MainGUI extends JFrame {
         lbl.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lbl.setForeground(EXIT_BORDER_COLOR);
         exitCell.add(lbl, BorderLayout.CENTER);
-
         boardPanel.add(exitCell);
-        boardPanel.setComponentZOrder(exitCell, 0);
 
         boardPanel.revalidate();
         boardPanel.repaint();
         pack();
-    }       
+    }
 
     private JPanel createBoardCell(char cellChar, char highlightId) {
         JPanel cell = new JPanel(new BorderLayout());
         cell.setOpaque(true);
-
         if (cellChar == '.') {
             cell.setBackground(BOARD_COLOR);
             cell.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200), 1));
         } else {
-            Color carColor = pieceColors.containsKey(cellChar) ? pieceColors.get(cellChar) : Color.LIGHT_GRAY;
-
+            Color carColor = pieceColors.getOrDefault(cellChar, Color.LIGHT_GRAY);
             cell.setBackground(carColor);
             if (cellChar == highlightId) {
                 cell.setBorder(BorderFactory.createCompoundBorder(
@@ -379,62 +375,55 @@ public class MainGUI extends JFrame {
                         BorderFactory.createLineBorder(carColor.darker(), 2),
                         BorderFactory.createEmptyBorder(2, 2, 2, 2)));
             }
-
-
             JLabel carLabel = new JLabel(String.valueOf(cellChar));
             carLabel.setFont(CELL_FONT);
             carLabel.setForeground(getLabelColor(carColor));
             carLabel.setHorizontalAlignment(SwingConstants.CENTER);
             cell.add(carLabel, BorderLayout.CENTER);
-
             if (cellChar == 'P') {
-                JLabel targetIndicator = new JLabel("♦");
-                targetIndicator.setFont(new Font("Segoe UI", Font.BOLD, 9));
-                targetIndicator.setForeground(getLabelColor(carColor));
-                targetIndicator.setHorizontalAlignment(SwingConstants.RIGHT);
-                targetIndicator.setVerticalAlignment(SwingConstants.TOP);
-                cell.add(targetIndicator, BorderLayout.NORTH);
+                JLabel target = new JLabel("♦");
+                target.setFont(new Font("Segoe UI", Font.BOLD, 9));
+                target.setForeground(getLabelColor(carColor));
+                target.setHorizontalAlignment(SwingConstants.RIGHT);
+                target.setVerticalAlignment(SwingConstants.TOP);
+                cell.add(target, BorderLayout.NORTH);
             }
         }
-
         return cell;
     }
 
-    private Color getLabelColor(Color background) {
-        double luminance = (0.299 * background.getRed() +
-                0.587 * background.getGreen() +
-                0.114 * background.getBlue()) / 255;
-
-        return luminance > 0.6 ? Color.BLACK : Color.WHITE;
+    private Color getLabelColor(Color bg) {
+        double lum = (0.299 * bg.getRed() + 0.587 * bg.getGreen() + 0.114 * bg.getBlue()) / 255;
+        return lum > 0.6 ? Color.BLACK : Color.WHITE;
     }
 
-    private void updateStatus(String message) {
-        statusLabel.setText(message);
+    private void assignPieceColors(State state) {
+        pieceColors.clear();
+        RandomColorGenerator gen = new RandomColorGenerator();
+        for (Character id : state.cars.keySet()) {
+            pieceColors.put(id, gen.nextColor());
+        }
+    }
+
+    private void updateStatus(String msg) {
+        statusLabel.setText(msg);
     }
 
     public static void main(String[] args) {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
-
         SwingUtilities.invokeLater(MainGUI::new);
     }
 }
 
 class RandomColorGenerator {
-    private float hue = 0;
-    private float saturation = 0.8f;
-    private float brightness = 0.95f;
+    private float hue = 0, sat = 0.8f, bri = 0.95f;
 
     public Color nextColor() {
-        Color c = Color.getHSBColor(hue, saturation, brightness);
-
-
-        hue += 0.618033988749895f;
-        hue %= 1.0f;
-
+        Color c = Color.getHSBColor(hue, sat, bri);
+        hue = (hue + 0.618033988749895f) % 1.0f;
         return c;
     }
 }

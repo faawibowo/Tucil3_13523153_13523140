@@ -12,8 +12,14 @@ public class Parser {
     }
 
     public static State loadState(String filename) throws IOException {
-        String path = "test\\" + filename;
-        BufferedReader reader = new BufferedReader(new FileReader(path));
+        File file = new File(filename);
+        if (!file.exists() || file.isDirectory()) {
+            file = new File("test" + File.separator + filename);
+            if (!file.exists() || file.isDirectory()) {
+                throw new FileNotFoundException("File not found: " + filename);
+            }
+        }
+        BufferedReader reader = new BufferedReader(new FileReader(file));
 
         // 1) Read dimensions
         String line = reader.readLine();
