@@ -59,6 +59,7 @@ public class GBFS {
             if (mainCar.isHorizontal) {
                 if (mainCar.col + mainCar.length - 1 == State.exitCol || mainCar.col == State.exitCol) {
                     found = true;
+                    time = System.nanoTime() - startTime;
                     System.out.println("Exit found");
                     finalState = currState;
                     finalState.displayState();
@@ -69,6 +70,7 @@ public class GBFS {
             {
                 if (mainCar.row + mainCar.length - 1 == State.exitRow || mainCar.row == State.exitRow) {
                     found = true;
+                    time = System.nanoTime() - startTime;
                     System.out.println("Exit found");
                     finalState = currState;
                     finalState.displayState();
@@ -133,7 +135,6 @@ public class GBFS {
                 }
             }
         }
-        time = System.nanoTime() - startTime;
         return found;
     }
 
