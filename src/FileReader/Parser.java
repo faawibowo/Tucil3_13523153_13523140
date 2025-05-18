@@ -21,7 +21,6 @@ public class Parser {
         }
         BufferedReader reader = new BufferedReader(new FileReader(file));
 
-        // 1) Read dimensions
         String line = reader.readLine();
         if (line == null)
             throw new IllegalArgumentException("File kosong");

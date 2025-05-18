@@ -73,6 +73,9 @@ public class GBFS {
                     time = System.nanoTime() - startTime;
                     System.out.println("Exit found");
                     finalState = currState;
+                    Car carP = finalState.cars.get('P');
+                    carP.col = -1;
+                    carP.row = -1;
                     finalState.displayState();
                     break;
                 }
@@ -84,6 +87,9 @@ public class GBFS {
                     time = System.nanoTime() - startTime;
                     System.out.println("Exit found");
                     finalState = currState;
+                    Car carP = finalState.cars.get('P');
+                    carP.col = -1;
+                    carP.row = -1;
                     finalState.displayState();
                     break;
                 }
